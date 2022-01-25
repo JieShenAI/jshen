@@ -3,5 +3,4 @@
 # CreatTime     :2022/1/25 13:10
 
 def hello():
-    print("com.jshen.hello")
-    print("see you later")
+    print("welcome you!")
