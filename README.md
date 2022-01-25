@@ -7,8 +7,11 @@ setup.py:
 3. https://blog.csdn.net/weixin_43964444/article/details/108414571
 
 python setup.py build
+
 python setup.py sdist
+
 python setup.py install
 
 更新：
+
 pip install git+https://github.com/JieShenAI/jshen.git --upgrade
