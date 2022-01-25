@@ -3,9 +3,14 @@
 # CreatTime     :2022/1/25 10:59
 from distutils.core import setup
 
+from setuptools import find_packages
+
 setup(
     name='jshen',  # How you named your package folder (foo)
-    packages=['jshen'],  # Chose the same as "name"
+    # packages=['jshen'],  # Chose the same as "name"
+    packages=find_packages(),
+    include_package_data=True,
+    platforms="any",
     version='0.1',  # Start with a small number and increase it with every change you make
     license='MIT',  # Chose a license from here: https://help.github.com/articles/licensing-a-repository
     description='Tools',  # Give a short description about your library

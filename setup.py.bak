@@ -1,0 +1,8 @@
+# _*_coding     : UTF_8_*_
+# Author        :Jie Shen
+# CreatTime     :2022/1/25 11:29
+from distutils.core import setup
+
+# setup(name='jshen', version='1.0', author='J.Shen', pymodules=['my_package.module1'])
+# , py_modules=['tree.ListNode', 'tree.TreeNode']
+setup(name='jshen', version='1.0', author='J.Shen', py_modules=['jshen.tree'])
