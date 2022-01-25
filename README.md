@@ -9,3 +9,6 @@ setup.py:
 python setup.py build
 python setup.py sdist
 python setup.py install
+
+更新：
+pip install git+https://github.com/JieShenAI/jshen.git --upgrade
