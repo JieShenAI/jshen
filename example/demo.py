@@ -1,5 +1,5 @@
 # _*_coding     : UTF_8_*_
-# Author        :Jie Shen
+# Author        :J.Shen
 # CreatTime     :2022/1/25 12:30
-from tree.hello import *
-hello()
+
+from src.j_torch import *

@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: jshen
-Version: 0.0.2
+Version: 0.0.5
 Summary: Tools for leetcode,kaggle...
 Home-page: https://github.com/JieShenAI/jshen/
 Author: J.Shen
@@ -24,6 +24,7 @@ Description: # jshen
         
         python setup.py install
         
+        twine upload dist/*
         更新：
         
         pip install git+https://github.com/JieShenAI/jshen.git --upgrade
@@ -38,7 +39,7 @@ Description: # jshen
         
         > 因为pypi的解析器不是sphinx，有些语法会有问题
         
-        安装库：
+        安装库rst：
         
         * pip install readme_renderer
         * 执行命令：python setup.py check -r -s

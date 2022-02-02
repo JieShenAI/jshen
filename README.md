@@ -16,6 +16,7 @@ python setup.py sdist   (推荐 source distribute)
 
 python setup.py install
 
+twine upload dist/*
 更新：
 
 pip install git+https://github.com/JieShenAI/jshen.git --upgrade
@@ -30,7 +31,7 @@ rst官方语法格式：https://zh-sphinx-doc.readthedocs.io/en/latest/rest.html
 
 > 因为pypi的解析器不是sphinx，有些语法会有问题
 
-安装库：
+安装库rst：
 
 * pip install readme_renderer
 * 执行命令：python setup.py check -r -s

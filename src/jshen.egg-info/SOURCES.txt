@@ -1,5 +1,9 @@
 README.md
 setup.py
+src/j_py/__init__.py
+src/j_py/basic.py
+src/j_torch/__init__.py
+src/j_torch/j_torch.py
 src/jshen.egg-info/PKG-INFO
 src/jshen.egg-info/SOURCES.txt
 src/jshen.egg-info/dependency_links.txt
