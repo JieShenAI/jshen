@@ -2,6 +2,7 @@
 # Author        :Jie Shen
 # CreatTime     :2022/2/2 15:34
 # code from     :https://github.com/d2l-ai/d2l-zh/blob/master/d2l/torch.py
+import math
 
 import torch
 from matplotlib import pyplot as plt
@@ -16,6 +17,29 @@ size = lambda x, *args, **kwargs: x.numel(*args, **kwargs)
 def shuffle(features):
     idx = torch.randperm(features.shape[0])
     return features[idx].view(features.size())
+
+
+def generate_polydata(true_w, data_len):
+    """
+    类似泰勒公式
+    :param true_w:
+    :param max_degree: 一维变量的长度
+    :param data_len: 生成的数据长度
+    :return:
+    """
+    max_degree = len(true_w)
+    features = torch.normal(0, 1, size=(data_len, 1))
+    # 将数据shuffle
+    features = shuffle(features)
+    # 多项式
+    poly_features = torch.pow(features, torch.arange(max_degree).reshape(1, -1))
+    # 除以i的阶乘是为了避免数据过大
+    for i in range(max_degree):
+        poly_features[:, i] /= math.gamma(i + 1)  # gamma(n)=(n-1)!
+    # labels
+    labels = torch.matmul(poly_features, true_w)
+    # 加一个噪音
+    labels += torch.normal(0, 0.01, size=labels.shape)
 
 
 def synthetic_data(w, b, num_examples):
