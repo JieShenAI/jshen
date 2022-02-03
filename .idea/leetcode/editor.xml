@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="LeetcodeEditor">
+    <option name="projectConfig">
+      <map>
+        <entry key="$PROJECT_DIR$/../../develop/leetcod_plugin/leetcode/editor/cn/[2047]句子中的有效单词数.py">
+          <value>
+            <LeetcodeEditor>
+              <option name="contentPath" value="$PROJECT_DIR$/../../develop/leetcod_plugin/leetcode/editor/cn/doc/content/[2047]句子中的有效单词数.md" />
+              <option name="frontendQuestionId" value="leetcode-cn.com2047" />
+              <option name="host" value="leetcode-cn.com" />
+              <option name="path" value="$PROJECT_DIR$/../../develop/leetcod_plugin/leetcode/editor/cn/[2047]句子中的有效单词数.py" />
+              <option name="titleSlug" value="number-of-valid-words-in-a-sentence" />
+            </LeetcodeEditor>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>
