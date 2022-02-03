@@ -14,7 +14,7 @@ setuptools.setup(
     packages=find_packages("src"),
     include_package_data=True,
     platforms="any",
-    version='0.0.5',  # Start with a small number and increase it with every change you make
+    version='0.0.8',  # Start with a small number and increase it with every change you make
     license='MIT',  # Chose a license from here: https://help.github.com/articles/licensing-a-repository
     description='Tools for leetcode,kaggle...',  # Give a short description about your library
     long_description=long_description,

@@ -13,6 +13,11 @@ reduce_sum = lambda x, *args, **kwargs: x.sum(*args, **kwargs)
 size = lambda x, *args, **kwargs: x.numel(*args, **kwargs)
 
 
+def shuffle(features):
+    idx = torch.randperm(features.shape[0])
+    return features[idx].view(features.size())
+
+
 def synthetic_data(w, b, num_examples):
     """
     根据真实w,真实b,生成对应的label
@@ -79,6 +84,22 @@ def train_one_epoch_loss_acc(net, train_iter, loss, updater):
         metric.add(float(l.sum()), accuracy(y_hat, y), y.numel())
     # 返回训练损失和训练精度
     return metric[0] / metric[2], metric[1] / metric[2]
+
+
+def draw_train_loss_acc_and_test_acc(net, train_iter, test_iter, updater, loss, num_epochs, ylim):
+    """训练模型（定义见第3章）
+    Defined in :numref:`sec_softmax_scratch`"""
+    animator = Animator(xlabel='epoch', xlim=[1, num_epochs], ylim=ylim,
+                        legend=['train loss', 'train acc', 'test acc'])
+    for epoch in range(num_epochs):
+        # 返回训练损失和训练精度
+        train_metrics = train_one_epoch_loss_acc(net, train_iter, loss, updater)
+        test_acc = evaluate_accuracy(net, test_iter)  # 计算在指定数据集上模型的精度
+        animator.add(epoch + 1, train_metrics + (test_acc,))
+    train_loss, train_acc = train_metrics
+    assert train_loss < 0.5, train_loss
+    assert 1 >= train_acc > 0.7, train_acc
+    assert 1 >= test_acc > 0.7, test_acc
 
 
 class Accumulator:
