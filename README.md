@@ -1,6 +1,17 @@
 # jshen
 Tools
-# 参考资料
+
+## jtorch
+
+### d2l.py
+
+使用的是 https://github.com/d2l-ai/d2l-en/blob/master/d2l/torch.py
+
+没有设置环境要求，若缺失哪个包，进行安装即可
+
+
+
+## 参考资料
 setup.py:
 
 2. https://blog.csdn.net/coolcooljob/article/details/80082907
@@ -23,7 +34,7 @@ pip install git+https://github.com/JieShenAI/jshen.git --upgrade
 
 国内源下载：pip install -i https://pypi.tuna.tsinghua.edu.cn/simple jshen
 
-## rst
+### rst
 
 rst官方语法格式：https://zh-sphinx-doc.readthedocs.io/en/latest/rest.html
 

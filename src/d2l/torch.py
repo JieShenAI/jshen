@@ -1,14 +1,32 @@
+from matplotlib_inline import backend_inline
+from matplotlib import pyplot as plt
+from IPython import display
+import requests
+import pandas as pd
+from collections import defaultdict
+import zipfile
+import time
+import tarfile
+import sys
+import shutil
+import re
+import random
+import os
+import math
+import inspect
+import hashlib
+import collections
+from torchvision import transforms
+from torch.utils import data
+from torch.nn import functional as F
+from torch import nn
+from PIL import Image
+import torchvision
+import torch
+import numpy as np
 DATA_HUB = dict()
 DATA_URL = 'http://d2l-data.s3-accelerate.amazonaws.com/'
 
-import numpy as np
-import torch
-import torchvision
-from PIL import Image
-from torch import nn
-from torch.nn import functional as F
-from torch.utils import data
-from torchvision import transforms
 
 nn_Module = nn.Module
 
@@ -17,35 +35,8 @@ nn_Module = nn.Module
 #    d2lbook build lib
 # Don't edit it directly
 
-import collections
-import hashlib
-import inspect
-import math
-import os
-import random
-import re
-import shutil
-import sys
-import tarfile
-import time
-import zipfile
-from collections import defaultdict
-import pandas as pd
-import requests
-from IPython import display
-from matplotlib import pyplot as plt
-from matplotlib_inline import backend_inline
 
 d2l = sys.modules[__name__]
-
-import numpy as np
-import torch
-import torchvision
-from PIL import Image
-from torch import nn
-from torch.nn import functional as F
-from torch.utils import data
-from torchvision import transforms
 
 
 def use_svg_display():
@@ -86,7 +77,8 @@ def plot(X, Y=None, xlabel=None, ylabel=None, legend=[], xlim=None,
         return (hasattr(X, "ndim") and X.ndim == 1 or isinstance(X, list)
                 and not hasattr(X[0], "__len__"))
 
-    if has_one_axis(X): X = [X]
+    if has_one_axis(X):
+        X = [X]
     if Y is None:
         X, Y = [[]] * len(X), X
     elif has_one_axis(Y):
@@ -95,7 +87,8 @@ def plot(X, Y=None, xlabel=None, ylabel=None, legend=[], xlim=None,
         X = X * len(Y)
 
     set_figsize(figsize)
-    if axes is None: axes = d2l.plt.gca()
+    if axes is None:
+        axes = d2l.plt.gca()
     axes.cla()
     for x, y, fmt in zip(X, Y, fmts):
         axes.plot(x, y, fmt) if len(x) else axes.plot(y, fmt)
@@ -156,7 +149,8 @@ class ProgressBoard(d2l.HyperParameters):
         points.append(Point(x, y))
         if len(points) != every_n:
             return
-        mean = lambda x: sum(x) / len(x)
+
+        def mean(x): return sum(x) / len(x)
         line.append(Point(mean([p.x for p in points]),
                           mean([p.y for p in points])))
         points.clear()
@@ -171,9 +165,12 @@ class ProgressBoard(d2l.HyperParameters):
                                           linestyle=ls, color=color)[0])
             labels.append(k)
         axes = self.axes if self.axes else d2l.plt.gca()
-        if self.xlim: axes.set_xlim(self.xlim)
-        if self.ylim: axes.set_ylim(self.ylim)
-        if not self.xlabel: self.xlabel = self.x
+        if self.xlim:
+            axes.set_xlim(self.xlim)
+        if self.ylim:
+            axes.set_ylim(self.ylim)
+        if not self.xlabel:
+            self.xlabel = self.x
         axes.set_xlabel(self.xlabel)
         axes.set_ylabel(self.ylabel)
         axes.set_xscale(self.xscale)
@@ -605,7 +602,8 @@ class TimeMachine(d2l.DataModule):
     def build(self, raw_text, vocab=None):
         """Defined in :numref:`sec_text-sequence`"""
         tokens = self._tokenize(self._preprocess(raw_text))
-        if vocab is None: vocab = Vocab(tokens)
+        if vocab is None:
+            vocab = Vocab(tokens)
         corpus = [vocab[token] for token in tokens]
         return corpus, vocab
 
@@ -625,11 +623,10 @@ class TimeMachine(d2l.DataModule):
         return self.get_tensorloader([self.X, self.Y], train, idx)
 
 
-class Vocab:
-    """Vocabulary for text."""
+""" class Vocab:
 
     def __init__(self, tokens=[], min_freq=0, reserved_tokens=[]):
-        """Defined in :numref:`sec_text-sequence`"""
+        """Defined in: numref: `sec_text-sequence`"""
         # Flatten a 2D list if needed
         if tokens and isinstance(tokens[0], list):
             tokens = [token for line in tokens for token in line]
@@ -658,7 +655,61 @@ class Vocab:
 
     @property
     def unk(self):  # Index for the unknown token
-        return self.token_to_idx['<unk>']
+        return self.token_to_idx['<unk>'] """
+
+
+def count_corpus(tokens):  # @save
+    """统计词元的频率"""
+    # 这里的tokens是1D列表或2D列表
+    if len(tokens) == 0 or isinstance(tokens[0], list):
+        # 将词元列表展平成一个列表
+        tokens = [token for line in tokens for token in line]
+    return collections.Counter(tokens)
+
+
+class Vocab:  # @save
+    """文本词表"""
+
+    def __init__(self, tokens=None, min_freq=0, reserved_tokens=None):
+        if tokens is None:
+            tokens = []
+        if reserved_tokens is None:
+            reserved_tokens = []
+        # 按出现频率排序
+        counter = count_corpus(tokens)
+        self._token_freqs = sorted(counter.items(), key=lambda x: x[1],
+                                   reverse=True)
+        # 未知词元的索引为0
+        self.idx_to_token = ['<unk>'] + reserved_tokens
+        self.token_to_idx = {token: idx
+                             for idx, token in enumerate(self.idx_to_token)}
+        for token, freq in self._token_freqs:
+            if freq < min_freq:
+                break
+            if token not in self.token_to_idx:
+                self.idx_to_token.append(token)
+                self.token_to_idx[token] = len(self.idx_to_token) - 1
+
+    def __len__(self):
+        return len(self.idx_to_token)
+
+    def __getitem__(self, tokens):
+        if not isinstance(tokens, (list, tuple)):
+            return self.token_to_idx.get(tokens, self.unk)
+        return [self.__getitem__(token) for token in tokens]
+
+    def to_tokens(self, indices):
+        if not isinstance(indices, (list, tuple)):
+            return self.idx_to_token[indices]
+        return [self.idx_to_token[index] for index in indices]
+
+    @property
+    def unk(self):  # 未知词元的索引为0
+        return 0
+
+    @property
+    def token_freqs(self):
+        return self._token_freqs
 
 
 class RNNScratch(d2l.Module):
@@ -678,10 +729,11 @@ class RNNScratch(d2l.Module):
         if state is not None:
             state, = state
         outputs = []
-        for X in inputs:  # Shape of inputs: (num_steps, batch_size, num_inputs)
+        # Shape of inputs: (num_steps, batch_size, num_inputs)
+        for X in inputs:
             state = d2l.tanh(d2l.matmul(X, self.W_xh) + (
                 d2l.matmul(state, self.W_hh) if state is not None else 0)
-                             + self.b_h)
+                + self.b_h)
             outputs.append(state)
         return outputs, state
 
@@ -781,9 +833,10 @@ class LSTMScratch(d2l.Module):
         self.save_hyperparameters()
 
         init_weight = lambda *shape: nn.Parameter(d2l.randn(*shape) * sigma)
-        triple = lambda: (init_weight(num_inputs, num_hiddens),
-                          init_weight(num_hiddens, num_hiddens),
-                          nn.Parameter(d2l.zeros(num_hiddens)))
+
+        def triple(): return (init_weight(num_inputs, num_hiddens),
+                              init_weight(num_hiddens, num_hiddens),
+                              nn.Parameter(d2l.zeros(num_hiddens)))
         self.W_xi, self.W_hi, self.b_i = triple()  # Input gate
         self.W_xf, self.W_hf, self.b_f = triple()  # Forget gate
         self.W_xo, self.W_ho, self.b_o = triple()  # Output gate
@@ -815,7 +868,8 @@ class MTFraEng(d2l.DataModule):
         # Replace non-breaking space with space
         text = text.replace('\u202f', ' ').replace('\xa0', ' ')
         # Insert space between words and punctuation marks
-        no_space = lambda char, prev_char: char in ',.!?' and prev_char != ' '
+        def no_space(
+            char, prev_char): return char in ',.!?' and prev_char != ' '
         out = [' ' + char if i > 0 and no_space(char, text[i - 1]) else char
                for i, char in enumerate(text.lower())]
         return ''.join(out)
@@ -824,7 +878,8 @@ class MTFraEng(d2l.DataModule):
         """Defined in :numref:`sec_machine_translation`"""
         src, tgt = [], []
         for i, line in enumerate(text.split('\n')):
-            if max_examples and i > max_examples: break
+            if max_examples and i > max_examples:
+                break
             parts = line.split('\t')
             if len(parts) == 2:
                 # Skip empty tokens
@@ -843,7 +898,7 @@ class MTFraEng(d2l.DataModule):
         """Defined in :numref:`sec_machine_translation`"""
 
         def _build_array(sentences, vocab, is_tgt=False):
-            pad_or_trim = lambda seq, t: (
+            def pad_or_trim(seq, t): return (
                 seq[:t] if len(seq) > t else seq + ['<pad>'] * (t - len(seq)))
             sentences = [pad_or_trim(s, self.num_steps) for s in sentences]
             if is_tgt:
@@ -864,7 +919,8 @@ class MTFraEng(d2l.DataModule):
 
     def get_dataloader(self, train):
         """Defined in :numref:`subsec_loading-seq-fixed-len`"""
-        idx = slice(0, self.num_train) if train else slice(self.num_train, None)
+        idx = slice(0, self.num_train) if train else slice(
+            self.num_train, None)
         return self.get_tensorloader(self.arrays, train, idx)
 
     def build(self, src_sentences, tgt_sentences):
@@ -1037,7 +1093,7 @@ def show_heatmaps(matrices, xlabel, ylabel, titles=None, figsize=(2.5, 2.5),
                 ax.set_ylabel(ylabel)
             if titles:
                 ax.set_title(titles[j])
-    fig.colorbar(pcm, ax=axes, shrink=0.6);
+    fig.colorbar(pcm, ax=axes, shrink=0.6)
 
 
 def masked_softmax(X, valid_lens):
@@ -1205,7 +1261,7 @@ class PositionalEncoding(nn.Module):
         self.P = d2l.zeros((1, max_len, num_hiddens))
         X = d2l.arange(max_len, dtype=torch.float32).reshape(
             -1, 1) / torch.pow(10000, torch.arange(
-            0, num_hiddens, 2, dtype=torch.float32) / num_hiddens)
+                0, num_hiddens, 2, dtype=torch.float32) / num_hiddens)
         self.P[:, :, 0::2] = torch.sin(X)
         self.P[:, :, 1::2] = torch.cos(X)
 
@@ -1651,8 +1707,8 @@ def box_iou(boxes1, boxes2):
     """Compute pairwise IoU across two lists of anchor or bounding boxes.
 
     Defined in :numref:`sec_anchor`"""
-    box_area = lambda boxes: ((boxes[:, 2] - boxes[:, 0]) *
-                              (boxes[:, 3] - boxes[:, 1]))
+    def box_area(boxes): return ((boxes[:, 2] - boxes[:, 0]) *
+                                 (boxes[:, 3] - boxes[:, 1]))
     # Shape of `boxes1`, `boxes2`, `areas1`, `areas2`: (no. of boxes1, 4),
     # (no. of boxes2, 4), (no. of boxes1,), (no. of boxes2,)
     areas1 = box_area(boxes1)
@@ -1767,7 +1823,8 @@ def nms(boxes, scores, iou_threshold):
     while B.numel() > 0:
         i = B[0]
         keep.append(i)
-        if B.numel() == 1: break
+        if B.numel() == 1:
+            break
         iou = box_iou(boxes[i, :].reshape(-1, 4),
                       boxes[B[1:], :].reshape(-1, 4)).reshape(-1)
         inds = torch.nonzero(iou <= iou_threshold).reshape(-1)
@@ -1821,14 +1878,14 @@ def read_data_bananas(is_train=True):
     Defined in :numref:`sec_object-detection-dataset`"""
     data_dir = d2l.download_extract('banana-detection')
     csv_fname = os.path.join(data_dir, 'bananas_train' if is_train
-    else 'bananas_val', 'label.csv')
+                             else 'bananas_val', 'label.csv')
     csv_data = pd.read_csv(csv_fname)
     csv_data = csv_data.set_index('img_name')
     images, targets = [], []
     for img_name, target in csv_data.iterrows():
         images.append(torchvision.io.read_image(
             os.path.join(data_dir, 'bananas_train' if is_train else
-            'bananas_val', 'images', f'{img_name}')))
+                         'bananas_val', 'images', f'{img_name}')))
         # Here `target` contains (class, upper-left x, upper-left y,
         # lower-right x, lower-right y), where all the images have the same
         # banana class (index 0)
@@ -2266,7 +2323,7 @@ class BERTEncoder(nn.Module):
         self.segment_embedding = nn.Embedding(2, num_hiddens)
         self.blks = nn.Sequential()
         for i in range(num_layers):
-            self.blks.add_module(f"{i}", d2l.EncoderBlock(num_hiddens, \
+            self.blks.add_module(f"{i}", d2l.EncoderBlock(num_hiddens,
                                                           norm_shape, ffn_num_hiddens, num_heads, dropout, True))
         # In BERT, positional embeddings are learnable, thus we create a
         # parameter of positional embeddings that are long enough
@@ -2453,21 +2510,21 @@ def _pad_bert_inputs(examples, max_len, vocab):
     for (token_ids, pred_positions, mlm_pred_label_ids, segments,
          is_next) in examples:
         all_token_ids.append(torch.tensor(token_ids + [vocab['<pad>']] * (
-                max_len - len(token_ids)), dtype=torch.long))
+            max_len - len(token_ids)), dtype=torch.long))
         all_segments.append(torch.tensor(segments + [0] * (
-                max_len - len(segments)), dtype=torch.long))
+            max_len - len(segments)), dtype=torch.long))
         # `valid_lens` excludes count of '<pad>' tokens
         valid_lens.append(torch.tensor(len(token_ids), dtype=torch.float32))
         all_pred_positions.append(torch.tensor(pred_positions + [0] * (
-                max_num_mlm_preds - len(pred_positions)), dtype=torch.long))
+            max_num_mlm_preds - len(pred_positions)), dtype=torch.long))
         # Predictions of padded tokens will be filtered out in the loss via
         # multiplication of 0 weights
         all_mlm_weights.append(
             torch.tensor([1.0] * len(mlm_pred_label_ids) + [0.0] * (
-                    max_num_mlm_preds - len(pred_positions)),
-                         dtype=torch.float32))
+                max_num_mlm_preds - len(pred_positions)),
+                dtype=torch.float32))
         all_mlm_labels.append(torch.tensor(mlm_pred_label_ids + [0] * (
-                max_num_mlm_preds - len(mlm_pred_label_ids)), dtype=torch.long))
+            max_num_mlm_preds - len(mlm_pred_label_ids)), dtype=torch.long))
         nsp_labels.append(torch.tensor(is_next, dtype=torch.long))
     return (all_token_ids, all_segments, valid_lens, all_pred_positions,
             all_mlm_weights, all_mlm_labels, nsp_labels)
@@ -2535,7 +2592,7 @@ def _get_batch_loss_bert(net, loss, vocab_size, tokens_X,
                                   pred_positions_X)
     # Compute masked language model loss
     mlm_l = loss(mlm_Y_hat.reshape(-1, vocab_size), mlm_Y.reshape(-1)) * \
-            mlm_weights_X.reshape(-1, 1)
+        mlm_weights_X.reshape(-1, 1)
     mlm_l = mlm_l.sum() / (mlm_weights_X.sum() + 1e-8)
     # Compute next sentence prediction loss
     nsp_l = loss(nsp_Y_hat, nsp_y)
@@ -2615,7 +2672,7 @@ def read_snli(data_dir, is_train):
 
     label_set = {'entailment': 0, 'contradiction': 1, 'neutral': 2}
     file_name = os.path.join(data_dir, 'snli_1.0_train.txt'
-    if is_train else 'snli_1.0_test.txt')
+                             if is_train else 'snli_1.0_test.txt')
     with open(file_name, 'r') as f:
         rows = [row.split('\t') for row in f.readlines()[1:]]
     premises = [extract_text(row[1]) for row in rows if row[0] in label_set]
@@ -3253,7 +3310,8 @@ def predict_seq2seq(net, src_sentence, src_vocab, tgt_vocab, num_steps,
         if pred == tgt_vocab['<eos>']:
             break
         output_seq.append(pred)
-    return ' '.join(tgt_vocab.to_tokens(output_seq)), attention_weight_seq  # Alias defined in config.ini
+    # Alias defined in config.ini
+    return ' '.join(tgt_vocab.to_tokens(output_seq)), attention_weight_seq
 
 
 nn_Module = nn.Module
