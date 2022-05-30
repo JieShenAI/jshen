@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from pathlib import Path
 import time
 import os
+import requests
 
 
 def send_request(url_: str, sleep_=0.3) -> bs4.BeautifulSoup:
@@ -23,7 +24,38 @@ def send_request(url_: str, sleep_=0.3) -> bs4.BeautifulSoup:
     return soup
 
 
-def download_html(url_):
+def get_soup_by_requests(url: str, params: dict, headers: dict, sleep_=0.3) -> bs4.BeautifulSoup:
+    """
+    https://curlconverter.com/ may help for auto generating params and headers.
+    Be careful of leaking your cookies to this site。
+
+    eg:
+        params = {
+            'searchtype': '2',
+            'page_index': '1',
+            ...
+            'zoneId': '',
+            'pppStatus': '0',
+            'agentName': '',
+        }
+
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:100.0) Gecko/20100101 Firefox/100.0',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+            'Accept-Language': 'zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2',
+            # 'Accept-Encoding': 'gzip, deflate',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
+            'DNT': '1',
+            'Sec-GPC': '1',
+        }
+    """
+    time.sleep(sleep_)
+    response = requests.get(url, params=params, headers=headers)
+    return BeautifulSoup(response.content, "html.parser")
+
+
+def download_html(url_, path_):
     """
     从服务器下载html，将其存放在当前文件夹下
     便于本地BeautifulSoup调试
@@ -42,7 +74,7 @@ def download_html(url_):
     # 获得当前路径
     # path = os.getcwd() + '/data.html'
     p = Path('.')
-    path = p.joinpath("data.html")
+    path = p.joinpath(path_)
     fo = open(path, "wb")
     fo.write(response.read())
     fo.close()
