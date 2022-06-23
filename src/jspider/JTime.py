@@ -34,7 +34,7 @@ def get_delta_time(t: datetime.datetime, delta_day) -> datetime:
     return t + datetime.timedelta(days=delta_day)
 
 
-now = datetime.datetime.now()
+now = datetime.datetime.now
 
 if __name__ == '__main__':
     t1 = get_delta_time(now, -30)

@@ -47,3 +47,11 @@ rst官方语法格式：https://zh-sphinx-doc.readthedocs.io/en/latest/rest.html
 * pip install readme_renderer
 * 执行命令：python setup.py check -r -s
 
+## 发布包
+
+参考：https://blog.csdn.net/mouday/article/details/80736312
+
+`python3 setup.py sdist bdist_wheel`
+
+`twine upload dist/*`
+

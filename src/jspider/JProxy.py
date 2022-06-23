@@ -2,10 +2,10 @@ import pickle
 import random
 from dataclasses import dataclass, field
 import datetime
-from net import send_request
+from .net import send_request
 import requests
 import logging
-from JTime import now
+from .JTime import now
 from pathlib import Path
 
 
@@ -64,7 +64,7 @@ def get_proxy_66ip(url_, proxy_impl):
         ip = tmp[0].string.strip()
         port = tmp[1].string.strip()
         if is_alive(ip, port):
-            proxy_impl.add(ip, JProxy(port, 0, now))
+            proxy_impl.add(ip, JProxy(port, 0, now()))
 
 
 def get_proxys(proxy_impl, end_page):
