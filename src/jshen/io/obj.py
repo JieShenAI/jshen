@@ -68,3 +68,15 @@ def yaml2json(yaml_file: str, json_file: str):
     """
     data = load_yaml(yaml_file)
     dict2json(data, json_file)
+
+
+def save_obj(obj, file: str):
+    import pickle
+    with open(file, 'wb') as f:
+        pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
+
+
+def load_obj(file: str) -> object:
+    import pickle
+    with open(file, 'rb') as f:
+        return pickle.load(f)
