@@ -21,9 +21,11 @@ setup.py参数介绍：https://www.cnblogs.com/maociping/p/6633948.html
 
 官方文档：https://packaging.python.org/en/latest/tutorials/packaging-projects/
 
-python setup.py build
+python setup.py clean 
 
-python setup.py sdist   (推荐 source distribute)
+* python setup.py build
+
+* python setup.py sdist   (推荐 source distribute)
 
 python setup.py install
 
@@ -55,3 +57,7 @@ rst官方语法格式：https://zh-sphinx-doc.readthedocs.io/en/latest/rest.html
 
 `twine upload dist/*`
 
+
+## sphinx
+
+sphinx-apidoc -o source/docs pkag

@@ -73,7 +73,7 @@ def download_html(url_, path_):
     response = urllib.request.urlopen(req)
     # 获得当前路径
     # path = os.getcwd() + '/data.html'
-    p = Path('.')
+    p = Path('')
     path = p.joinpath(path_)
     fo = open(path, "wb")
     fo.write(response.read())

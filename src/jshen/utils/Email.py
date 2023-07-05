@@ -7,17 +7,29 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.image import MIMEImage
 from email.header import Header
 from typing import Union, Sequence
-from IO import read_json_file
+from ..io import json2dict
 
 
 # reforence: https://blog.csdn.net/Cameback_Tang/article/details/122540118
 class Email:
+    """
+    settings_file:
+        {
+            "user":"xxxrobot@163.com",
+            "pwd":"xxxxxxxxx",
+            "host":"smtp.163.com",
+            "receiver":"接收人@qq.com"
+        }
+
+    """
+
     def __init__(self, settings_file):
-        self.__settings = read_json_file(settings_file)
+        self.__settings = json2dict(settings_file)
         self.sender = self.__settings['user']
         # 传递给Header的From的参数，随便写都可以;
         # 格式必须为: "your_name@xx.域名" 或 your_name<your_name@xx.域名>
         self.from_addr = "noreply@cn.world"
+        self.receiver = self.__settings['receiver']
         self.__connect()
         self.rear_text = "\n\n\t    此邮件由机器人发送，您无法直接回复。"
 
@@ -37,9 +49,6 @@ class Email:
             print("163 email login failed with error: %s" % e)  # 打印错误
         finally:
             return self  # 注意enter里面一定要返回类的对象self,否则无法调用run方法。
-
-    def __del__(self):
-        print('Info: Exit Email')
 
     def email_send(self, to_addrs, message):
         '''
@@ -94,7 +103,6 @@ class Email:
 
         # 3、给 所有收件人 send email
         addressees = to_addrs + cc_addrs + bcc_addrs
-        addressees = to_addrs
         return self.email_send(to_addrs=addressees, message=msg)
 
     def demo(self, to_addrs=[]):
@@ -247,7 +255,7 @@ class Email:
 
 if __name__ == '__main__':
     home = pathlib.Path.home()
-    p = home.joinpath(".jiejie/email/settings.json")
+    p = home.joinpath(".xxxxxx/../settings.json")
     email = Email(p)
     msg = MIMEMultipart()
     msg.attach(MIMEText("hello world", 'html', 'utf-8'))
