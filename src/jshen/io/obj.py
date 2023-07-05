@@ -23,13 +23,13 @@ def json2dict(file_data: Union[str, pathlib.Path]) -> dict:
 
 
 def dict2json(obj: dict, file: Union[str, pathlib.Path]):
-    if isinstance(file, str) and pathlib.Path(file).is_file():
+    if isinstance(file, str):
         json.dump(obj, open(file, 'w', encoding='utf-8'), indent=2, ensure_ascii=False)
     else:
         json.dump(obj, file, indent=2, ensure_ascii=False)
 
 
-def open_yaml(file: str, use_dot=False) -> dict:
+def load_yaml(file: str, use_dot=False) -> dict:
     """
 
     :param file:
@@ -40,22 +40,31 @@ def open_yaml(file: str, use_dot=False) -> dict:
     import yaml
 
     class DotDict:
-        def __init__(self, d):
-            self.d = d
+        def __init__(self, data):
+            self.data = data
 
         def __getattr__(self, key):
-            if key in self.d:
-                return self.d[key]
-            return getattr(self.d, key)
+            if key in self.data:
+                return self.data[key]
+            return getattr(self.data, key)
 
         def __len__(self):
-            return len(self.d)
+            return len(self.data)
 
         def __repr__(self):
-            return repr(self.d)
+            return repr(self.data)
 
-    yaml_file = "test.yaml"
-    data = yaml.load(open(yaml_file), Loader=yaml.FullLoader)
+    data = yaml.load(open(file), Loader=yaml.FullLoader)
     if not use_dot:
         return data
     return DotDict(data)
+
+
+def yaml2json(yaml_file: str, json_file: str):
+    """yaml文件转json文件
+    :param yaml_file:
+    :param json_file:
+    :return:
+    """
+    data = load_yaml(yaml_file)
+    dict2json(data, json_file)
