@@ -3,6 +3,7 @@ from aligo import Aligo
 ali = Aligo()
 
 
+# quick branch
 def init_aligo(refresh_token):
     Aligo(refresh_token=refresh_token)
 
