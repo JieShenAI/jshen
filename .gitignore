@@ -2,3 +2,4 @@
 /src/jshen/jshen.egg-info/
 /dist/
 *.json
+/.idea

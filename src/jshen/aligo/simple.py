@@ -1,6 +1,5 @@
 from aligo import Aligo
-
-ali = Aligo()
+from . import ali
 
 
 def init_aligo(refresh_token):
