@@ -80,3 +80,15 @@ def load_obj(file: str) -> object:
     import pickle
     with open(file, 'rb') as f:
         return pickle.load(f)
+
+
+def jsonl2dict(file: str) -> list:
+    """jsonl文件转dict
+    :param file:
+    :return:
+    """
+    data = []
+    with open(file, 'r', encoding='utf-8') as f:
+        for line in f:
+            data.append(json.loads(line))
+    return data

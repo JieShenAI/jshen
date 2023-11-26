@@ -32,6 +32,22 @@ from . import ali
 
     file = "文件夹下所有文件的hash信息.jsonl"
     ql.create_cloud_folder_by_local_file(file, "云盘文件夹路径")
+    
+    
+
+    qu = QuickUpload()
+    
+    qu.save_quick_upload_info(
+        "/Users/jshen/Downloads/alidrive/文件夹",
+        "mv.jsonl",
+        desc="test big file"
+    )
+    
+    qu.create_cloud_folder_by_local_file(
+        "mv.jsonl",
+        remote_folder='jshen/big_files'
+    )
+
 """
 
 
