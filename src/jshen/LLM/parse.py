@@ -15,5 +15,3 @@ def re_parse_json(text) -> Union[Dict, None]:
         return response_data
     # print(f"异常:\n{text}")
     return None
-
-
