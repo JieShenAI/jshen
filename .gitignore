@@ -7,3 +7,11 @@
 *.egg-info
 *.log
 *.txt
+*.env
+*.yaml
+test.*
+
+output/
+*.csv
+__pycache__
+*bak*

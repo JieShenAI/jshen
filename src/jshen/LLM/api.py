@@ -2,15 +2,9 @@
 pip install langchain tqdm aiolimiter python-dotenv
 """
 
+import os
 import asyncio
-from tqdm import tqdm
-from dataclasses import dataclass, field
-from typing import List
-from aiolimiter import AsyncLimiter
-from langchain_openai import ChatOpenAI
-
-
-import asyncio
+import pandas as pd
 from tqdm import tqdm
 from dataclasses import dataclass, field
 from typing import List
@@ -28,6 +22,7 @@ class AsyncLLMAPI:
     api_key: str  # 每个API的key不一样
     uid: int
     cnt: int = 0  # 统计每个API被调用了多少次
+    model: str = "gpt-3.5-turbo"
     llm: ChatOpenAI = field(init=False)  # 自动创建的对象，不需要用户传入
     num_per_second: int = 6  # 限速每秒调用6次
 
@@ -40,7 +35,7 @@ class AsyncLLMAPI:
     def create_llm(self):
         # 创建 llm 对象
         return ChatOpenAI(
-            model="gpt-4o-mini",
+            model=self.model,
             base_url=self.base_url,
             api_key=self.api_key,
         )
@@ -59,21 +54,57 @@ class AsyncLLMAPI:
         return result
 
     @staticmethod
-    def run_data_async(llms: List["AsyncLLMAPI"], data: List[str]):
-        async def _sync_run(llms, data):
+    def async_run(
+        llms: List["AsyncLLMAPI"],
+        data: List[str],
+        keyword: str = "",  # 文件导出名
+        output_dir: str = "output",
+        chunk_size=500,
+    ):
+
+        async def _func(llms, data):
+            """
+            异步请求处理一小块数据
+            """
             results = [llms[i % len(llms)](text) for i, text in enumerate(data)]
-            # 使用 tqdm 创建一个进度条
             with tqdm(total=len(results)) as pbar:
-                # asyncio.gather 并行执行任务
                 results = await asyncio.gather(
                     *[
                         AsyncLLMAPI._run_task_with_progress(task, pbar)
                         for task in results
                     ]
                 )
-            return results, llms
+            return results
 
-        return asyncio.run(_sync_run(llms, data))
+        idx = 0
+        all_df = []
+        while idx < len(data):
+            file = f"{idx}_{keyword}.csv"
+            file_dir = os.path.join(output_dir, file)
+
+            if os.path.exists(file_dir):
+                print(f"{file_dir} already exist! Just skip.")
+                tmp_df = pd.read_csv(file_dir)
+            else:
+                tmp_data = data[idx : idx + chunk_size]
+
+                loop = asyncio.get_event_loop()
+                tmp_result = loop.run_until_complete(_func(llms=llms, data=tmp_data))
+                tmp_result = [item.generations[0][0].text for item in tmp_result]
+                tmp_df = pd.DataFrame({"infer": tmp_result})
+
+                # 如果文件夹不存在，则创建
+                if not os.path.exists(tmp_folder := os.path.dirname(file_dir)):
+                    os.makedirs(tmp_folder)
+
+                tmp_df.to_csv(file_dir, index=False)
+
+            all_df.append(tmp_df)
+            idx += chunk_size
+
+        all_df = pd.concat(all_df)
+        all_df.to_csv(os.path.join(output_dir, f"all_{keyword}.csv"), index=False)
+        return all_df
 
 
 if __name__ == "__main__":
